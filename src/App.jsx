@@ -23,6 +23,7 @@ function App() {
    *    If you want to run the effect when a specific value changes, you can add that value to the array.
    */
   useEffect(() => {
+    // navigator.geolocation is a built-in browser API that allows you to get the user's current location.
     navigator.geolocation.getCurrentPosition((position) => {
       const sortedPlaces = sortPlacesByDistance(AVAILABLE_PLACES, position.coords.latitude, position.coords.longitude);
       setAvailablePlaces(sortedPlaces);
@@ -46,6 +47,16 @@ function App() {
       const place = AVAILABLE_PLACES.find((place) => place.id === id);
       return [place, ...prevPickedPlaces];
     });
+
+    /**
+     * We do not want to wrap this functionality with useEffect.
+     * 
+     * localStorage is a built-in browser API that allows you to store data in the browser.
+     */
+    const storedIds = JSON.parse(localStorage.getItem('selectedPlaces')) || [];
+    if (storedIds.includes(id)) {
+      localStorage.setItem('selectedPlaces', JSON.stringify([id, ...storedIds]));
+    }
   }
 
   function handleRemovePlace() {
