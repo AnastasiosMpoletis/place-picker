@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 
 import Places from './components/Places.jsx';
 import { AVAILABLE_PLACES } from './data.js';
@@ -69,7 +69,15 @@ function App() {
     }
   }
 
-  function handleRemovePlace() {
+  /**
+   * With useCallback, React makes sure that the inner function is not recreated. Dependencies work the same as useEffect.
+   * React stores it internally in memory and reuses it whenever the component function executes again. 
+   * 
+   * In our case we have an infinite loop. 
+   * setModalIsOpen(false); re-renders the App, handleRemovePlace function is created again and the dependency in 
+   *    DeleteConfirmation -> useEffect triggers a change and re-renders App again.   
+   */
+  const handleRemovePlace = useCallback(function handleRemovePlace() {
     setPickedPlaces((prevPickedPlaces) =>
       prevPickedPlaces.filter((place) => place.id !== selectedPlace.current)
     );
@@ -77,7 +85,7 @@ function App() {
 
     const storedIds = JSON.parse(localStorage.getItem('selectedPlaces')) || [];
     localStorage.setItem('selectedPlaces', JSON.stringify(storedIds.filter((id) => id !== selectedPlace.current)));
-  }
+  }, []);
 
   return (
     <>
